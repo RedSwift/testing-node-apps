@@ -23,5 +23,19 @@ test('responds with 401 for express-jwt UnauthorizedError', () => {
 });
 
 // 🐨 Write a test for the headersSent case
+test('skip throwing an error if res has been sent', () => {
+  const req = {}
+  const error = new Error('blah')
+  const next = jest.fn()
+  const res = {json: jest.fn(() => res), status: jest.fn(() => res), headersSent: true}
+
+  errorMiddleware(error, req, res, next)
+
+  expect(next).toHaveBeenCalledTimes(1)
+  expect(next).toHaveBeenCalledWith(error)
+
+  expect(res.json).not.toHaveBeenCalled()
+  expect(res.status).not.toHaveBeenCalled()
+});
 
 // 🐨 Write a test for the else case (responds with a 500)
