@@ -62,11 +62,6 @@
     "setup": "node setup",
     "validate": "npm-run-all --parallel test:final:coverage lint"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run validate"
-    }
-  },
   "babel": {
     "presets": [
       [

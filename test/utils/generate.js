@@ -5,7 +5,7 @@ import {getUserToken, getSaltAndHash} from '../../src/utils/auth'
 // prefex all of the ones we generate with `!0_Oo` to ensure it's valid.
 const getPassword = (...args) => `!0_Oo${faker.internet.password(...args)}`
 const getUsername = faker.internet.userName
-const getId = faker.random.uuid
+const getId = faker.datatype.uuid
 const getSynopsis = faker.lorem.paragraph
 const getNotes = faker.lorem.paragraph
 
