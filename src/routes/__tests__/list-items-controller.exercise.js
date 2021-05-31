@@ -110,7 +110,7 @@ describe('setListItem', () => {
 
   test('returns 403 if user and list item owner does not match', async () => {
     const fakeUserId = 'FAKE_USER_ID'
-    const listItem = buildListItem({id: 'FAKE_LIST_ITEM_ID'})
+    const listItem = buildListItem({id: 'FAKE_LIST_ITEM_ID', ownerId: 'SOMEONE_ELSE'})
     const user = buildUser({id: fakeUserId})
 
     const req = buildReq({user, params: {id: listItem.id}})
