@@ -6,11 +6,14 @@ import {
   buildUser,
   buildBook,
   buildListItem,
+  buildNext,
 } from 'utils/generate'
 import * as booksDB from '../../db/books'
+import * as listItemDB from '../../db/list-items'
 import * as listItemsController from '../list-items-controller'
 
 jest.mock('../../db/books')
+jest.mock('../../db/list-items')
 
 afterEach(() => {
   jest.resetAllMocks()
@@ -53,4 +56,43 @@ test('createListItem returns error if no book id provided', async () => {
       },
     ]
   `)
+})
+
+describe('setListItem', () => {
+  test('returns error if no list item found with id', async () => {
+    const req = buildReq()
+    const res = buildRes()
+
+    listItemDB.readById.mockResolvedValueOnce(null)
+
+    await listItemsController.setListItem(req, res)
+
+    expect(res.status).toHaveBeenCalledWith(404)
+    expect(res.status).toHaveBeenCalledTimes(1)
+
+    expect(res.json).toHaveBeenCalledTimes(1)
+    expect(res.json.mock.calls[0]).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "message": "No list item was found with the id of undefined",
+        },
+      ]
+    `)
+  })
+
+  test('sets list item in req header if list item is found', async () => {
+    const listItem = buildListItem()
+    const user = buildUser({id: listItem.ownerId})
+
+    const req = buildReq({user, params: {id: listItem.id}})
+    const res = buildRes()
+    const next = buildNext()
+
+    listItemDB.readById.mockResolvedValueOnce(listItem)
+
+    await listItemsController.setListItem(req, res, next)
+
+    expect(req.listItem).toEqual(listItem)
+    expect(next).toHaveBeenCalledTimes(1)
+  })
 })
