@@ -139,3 +139,34 @@ describe('setListItem', () => {
     `)
   })
 })
+
+test('getListItems should return all list items belonging to a user', async () => {
+  const user = buildUser()
+  const books = [buildBook(), buildBook()]
+  const listItems = [
+    buildListItem({ownerId: user.id, bookId: books[0].id}), 
+    buildListItem({ownerId: user.id, bookId: books[1].id})
+  ]
+
+  const req = buildReq({user})
+  const res = buildRes()
+
+  listItemDB.query.mockResolvedValueOnce(listItems)
+  booksDB.readManyById.mockResolvedValueOnce([books[0], books[1]])
+
+  await listItemsController.getListItems(req, res)
+
+  expect(listItemDB.query).toHaveBeenCalledTimes(1)
+  expect(listItemDB.query).toHaveBeenCalledWith({ownerId: user.id})
+
+  expect(booksDB.readManyById).toHaveBeenCalledTimes(1)
+  expect(booksDB.readManyById).toHaveBeenCalledWith([books[0].id, books[1].id])
+
+  expect(res.json).toHaveBeenCalledTimes(1)
+  expect(res.json).toHaveBeenCalledWith({
+    listItems: [
+      {...listItems[0], book: books[0]}, 
+      {...listItems[1], book: books[1]}
+    ]
+  })
+});
