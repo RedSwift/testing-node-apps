@@ -95,4 +95,28 @@ describe('setListItem', () => {
     expect(req.listItem).toEqual(listItem)
     expect(next).toHaveBeenCalledTimes(1)
   })
+
+  test('returns 403 if user and list item owner does not match', async () => {
+    const listItem = buildListItem({id: 1})
+    const user = buildUser({id: 2})
+
+    const req = buildReq({user, params: {id: listItem.id}})
+    const res = buildRes()
+
+    listItemDB.readById.mockResolvedValueOnce(listItem)
+
+    await listItemsController.setListItem(req, res)
+
+    expect(res.status).toHaveBeenCalledWith(403)
+    expect(res.status).toHaveBeenCalledTimes(1)
+
+    expect(res.json).toHaveBeenCalledTimes(1)
+    expect(res.json.mock.calls[0]).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "message": "User with id 2 is not authorized to access the list item 1",
+        },
+      ]
+    `)
+  })
 })
