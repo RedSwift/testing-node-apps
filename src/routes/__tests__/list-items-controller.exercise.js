@@ -60,12 +60,19 @@ test('createListItem returns error if no book id provided', async () => {
 
 describe('setListItem', () => {
   test('returns error if no list item found with id', async () => {
-    const req = buildReq()
+    const fakeListItemId = 'FAKE_LIST_ITEM_ID'
+    const req = buildReq({params: {id: fakeListItemId}})
     const res = buildRes()
+    const next = buildNext()
 
     listItemDB.readById.mockResolvedValueOnce(null)
 
     await listItemsController.setListItem(req, res)
+
+    expect(listItemDB.readById).toHaveBeenCalledWith(fakeListItemId)
+    expect(listItemDB.readById).toHaveBeenCalledTimes(1)
+
+    expect(next).not.toHaveBeenCalled()
 
     expect(res.status).toHaveBeenCalledWith(404)
     expect(res.status).toHaveBeenCalledTimes(1)
@@ -74,7 +81,7 @@ describe('setListItem', () => {
     expect(res.json.mock.calls[0]).toMatchInlineSnapshot(`
       Array [
         Object {
-          "message": "No list item was found with the id of undefined",
+          "message": "No list item was found with the id of FAKE_LIST_ITEM_ID",
         },
       ]
     `)
@@ -92,7 +99,12 @@ describe('setListItem', () => {
 
     await listItemsController.setListItem(req, res, next)
 
+    expect(listItemDB.readById).toHaveBeenCalledWith(listItem.id)
+    expect(listItemDB.readById).toHaveBeenCalledTimes(1)
+
     expect(req.listItem).toEqual(listItem)
+
+    expect(next).toHaveBeenCalledWith(/* nothing */)
     expect(next).toHaveBeenCalledTimes(1)
   })
 
